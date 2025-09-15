@@ -1,537 +1,501 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Votre Aventure Geek au Japon - Itinéraire Interactif Final</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-        :root {
-            --primary-color: #d6495b;
-            --secondary-color: #5c677d;
-            --background-color: #f4f7f6;
-            --card-background: #fff;
-            --text-color: #333;
-            --jr-pass-color: #2E8B57;
-            --warning-color: #c0392b;
-            --geek-color: #8e44ad;
-            --link-color: #0077cc;
-            --bonus-color: #f39c12;
-            --shadow-light: 0 2px 5px rgba(0,0,0,0.05);
-            --shadow-medium: 0 4px 10px rgba(0,0,0,0.1);
-            --shadow-strong: 0 8px 25px rgba(0,0,0,0.08);
-        }
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: var(--background-color); color: var(--text-color); line-height: 1.7; }
-        .container { max-width: 960px; margin: 2em auto; padding: 0 1em; }
-        h1, h2, h3 { font-weight: 700; }
-        h1 { text-align: center; color: var(--primary-color); margin-bottom: 0.5em; font-size: 2.5em; }
-        h2 { border-bottom: 3px solid var(--primary-color); padding-bottom: 0.5em; margin-top: 2.5em; color: var(--primary-color); font-size: 2em;}
-        h3 { color: var(--secondary-color); font-size: 1.6em; }
-        h3 i { color: var(--primary-color); margin-right: 15px; }
-        a { color: var(--link-color); text-decoration: none; transition: color 0.3s; }
-        a:hover { color: #0055a4; text-decoration: underline; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Votre Aventure Geek au Japon — Itinéraire interactif</title>
+  <!-- Icons & Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    /* =====================
+       DESIGN SYSTEM
+    ======================*/
+    :root {
+      --primary: #db2b52;           /* rouge framboise chic */
+      --primary-600: #c31f45;
+      --secondary: #3b82f6;         /* bleu punchy */
+      --bg: #0b1220;                /* fond night */
+      --bg-elev: #0f172a;           /* carte */
+      --text: #e5ebff;              /* texte clair */
+      --muted: #a7b0c3;             /* texte secondaire */
+      --card: rgba(17, 24, 39, .65);/* verre */
+      --border: rgba(255,255,255,.08);
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow-soft: 0 6px 20px rgba(2,6,23,.2);
+      --radius-xl: 18px;
+      --radius-lg: 14px;
+      --radius-md: 12px;
+      --blur: 10px;
+      --ring: 0 0 0 2px rgba(219,43,82,.25), 0 8px 30px rgba(219,43,82,.25);
+    }
 
-        /* GRILLE DYNAMIQUE INTERACTIVE */
-        .itinerary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5em;
-            margin-bottom: 2em;
-        }
-        .day-card {
-            background: var(--card-background);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow-light);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-        }
-        .day-card:hover, .day-card.active {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-medium);
-        }
-        .day-card.active .card-header {
-            background-color: var(--primary-color);
-        }
-        .card-header {
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 0.5em;
-            text-align: center;
-            font-weight: 600;
-            font-size: 1.2em;
-            transition: background-color 0.3s;
-        }
-        .card-content {
-            padding: 1.5em; text-align: center; flex-grow: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-        }
-        .card-content .info-icon { font-size: 2.5em; color: var(--primary-color); margin-bottom: 0.5em; height: 45px; }
-        .card-content h4 { margin: 0; font-size: 1.1em; color: var(--secondary-color); }
-        .card-content p { margin: 0.5em 0 0 0; font-size: 0.9em; color: #666; }
+    /* Light theme (auto if user toggles) */
+    html[data-theme="light"] {
+      --bg: #f6f7fb;
+      --bg-elev: #ffffff;
+      --text: #0b1220;
+      --muted: #4b5563;
+      --card: rgba(255,255,255,.75);
+      --border: rgba(15, 23, 42, .08);
+      --shadow-soft: 0 6px 24px rgba(2,6,23,.08);
+    }
 
-        /* DÉTAILS DE JOUR PLIABLES */
-        .detailed-day { 
-            background: var(--card-background); border-left: 5px solid var(--primary-color); padding: 2em; margin: 1em 0 2em 0; 
-            border-radius: 12px; box-shadow: var(--shadow-strong);
-            display: none;
-        }
-        .detailed-day.visible {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 20% -10%, rgba(219,43,82,.14), transparent 50%),
+                  radial-gradient(1000px 700px at 90% 10%, rgba(59,130,246,.12), transparent 50%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
 
-        /* Styles pour les sections */
-        .cost-section, .transport-section, .geek-alert, .links-section, .bonus-section, .checklist-section { margin-top: 1.5em; padding: 1.5em; border-radius: 8px; background: #f9f9f9; border: 1px solid #eee; }
-        .cost-section h4, .transport-section h4, .geek-alert h4, .links-section h4, .bonus-section h4, .checklist-section h4 { margin-top: 0; font-weight: 600; color: var(--secondary-color); font-size: 1.1em; border-bottom: 1px solid #ddd; padding-bottom: 0.5em; }
-        .cost-section h4 i, .transport-section h4 i, .geek-alert h4 i, .links-section h4 i, .bonus-section h4 i, .checklist-section h4 i { margin-right: 10px; }
-        .geek-alert h4 { color: var(--geek-color); } .geek-alert { border-left: 4px solid var(--geek-color); }
-        .links-section h4 { color: var(--link-color); } .links-section { border-left: 4px solid var(--link-color); }
-        .bonus-section h4 { color: var(--bonus-color); } .bonus-section { border-left: 4px solid var(--bonus-color); }
-        .checklist-section { border-left: 4px solid #16a085; } .checklist-section h4 { color: #16a085; }
-        .links-section ul, .checklist-section ul { list-style-type: none; padding-left: 0; margin-top: 1em; }
-        .links-section ul li, .checklist-section ul li { margin-bottom: 0.5em; font-size: 0.9em; }
-        .links-section ul li i, .checklist-section ul li i { color: var(--link-color); margin-right: 8px; width: 16px; text-align: center; }
-        .checklist-section ul li i { color: #16a085; }
-        .cost-item { display: flex; justify-content: space-between; padding: 0.5em 0; border-bottom: 1px dashed #e0e0e0; font-size: 0.9em; } .cost-item:last-child { border-bottom: none; }
-        .cost-total { font-weight: 700; color: var(--primary-color); font-size: 1.1em; }
-        .last-train { color: var(--warning-color); font-weight: 700; }
-        .warning-text { color: var(--warning-color); font-weight: bold; background-color: #fdd; padding: 1em; border-radius: 8px; border: 1px solid var(--warning-color);}
-        .jr-pass-info { color: var(--jr-pass-color); font-weight: 600; }
-        .info-item { display: flex; align-items: center; margin-bottom: 0.5em; font-size: 0.9em; color: #666; }
-        .info-item i { color: var(--secondary-color); margin-right: 10px; width: 18px; text-align: center; }
-        .recap-section { background: var(--card-background); padding: 2em; margin-top: 2em; border-radius: 12px; box-shadow: var(--shadow-strong); }
-        .recap-table { width: 100%; border-collapse: collapse; margin-top: 1em; }
-        .recap-table th, .recap-table td { padding: 0.8em; text-align: left; border-bottom: 1px solid #ddd; }
-        .recap-table th { background-color: #f2f2f2; font-weight: 600; }
-        .recap-total-row td, .grand-total-row td { font-weight: 700; font-size: 1.2em; color: var(--primary-color); border-top: 2px solid var(--primary-color); }
+    /* =====================
+       HEADER / HERO
+    ======================*/
+    .site-header {
+      position: sticky; top: 0; z-index: 50; backdrop-filter: saturate(150%) blur(10px);
+      background: linear-gradient(90deg, rgba(11,18,32,.75), rgba(11,18,32,.35));
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      max-width: 1100px; margin: 0 auto; padding: .8rem 1rem; display: flex; align-items: center; gap: 1rem;
+      justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: .65rem; font-weight: 800; letter-spacing: .2px; }
+    .brand i { color: var(--primary); }
+    .nav-actions { display: flex; align-items: center; gap: .5rem; }
+    .btn, .chip {
+      display: inline-flex; align-items: center; gap: .5rem; border: 1px solid var(--border); color: var(--text);
+      padding: .6rem .9rem; border-radius: 999px; text-decoration: none; font-weight: 600; transition: .2s ease; cursor: pointer;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+    .btn.primary { background: linear-gradient(180deg, var(--primary), var(--primary-600)); border-color: transparent; color: white; }
+    .btn.ghost { background: transparent; }
 
-        /* BOUTON RETOUR EN HAUT */
-        #backToTopBtn {
-            display: none; position: fixed; bottom: 20px; right: 30px; z-index: 99;
-            border: none; outline: none; background-color: var(--primary-color); color: white;
-            cursor: pointer; padding: 12px 15px; border-radius: 50%; font-size: 18px;
-            box-shadow: var(--shadow-medium); transition: background-color 0.3s, opacity 0.3s;
-        }
-        #backToTopBtn:hover { background-color: #b3384a; }
+    .hero { position: relative; overflow: hidden; }
+    .hero-inner {
+      max-width: 1100px; margin: 0 auto; padding: 3.8rem 1rem 2.6rem; display: grid; grid-template-columns: 1.2fr .8fr; gap: 2rem; align-items: center;
+    }
+    @media (max-width: 980px) { .hero-inner { grid-template-columns: 1fr; padding-top: 2.2rem; } }
+    .hero h1 { font-size: clamp(1.9rem, 3.2vw + 1rem, 3.2rem); line-height: 1.1; margin: .2rem 0 1rem; letter-spacing: .1px; }
+    .eyebrow { color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .18em; font-size: .78rem; }
+    .hero .lede { font-size: clamp(1rem, .5vw + .9rem, 1.15rem); color: var(--muted); margin-bottom: 1.4rem; }
+    .hero-cta { display: flex; gap: .6rem; flex-wrap: wrap; }
 
-        /* STYLES POUR L'IMPRESSION */
-        @media print {
-            body { font-size: 10pt; color: #000; }
-            .container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; }
-            h1, h2, h3 { color: #000; border: none; }
-            .itinerary-grid, #backToTopBtn, .warning-text, .day-card, .checklist-section, #details-container + .recap-section h2, #details-container + .recap-section > p { display: none; }
-            .recap-section, .detailed-day {
-                box-shadow: none;
-                border: 1px solid #ccc;
-                page-break-inside: avoid;
-            }
-            .detailed-day { display: block !important; }
-            .recap-table { font-size: 9pt; }
-            a { text-decoration: none; color: #000; }
-            a:after { content: " (" attr(href) ")"; font-size: 8pt; color: #555; }
-            a[href^="#"]:after { content: ""; }
-        }
-    </style>
+    .hero-art { position: relative; isolation: isolate; }
+    .glassy {
+      background: var(--card); backdrop-filter: blur(var(--blur)) saturate(125%);
+      border: 1px solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow-soft);
+    }
+    .hero-card { padding: 1.2rem; display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .hero-metric { padding: 1rem; border-radius: var(--radius-lg); border: 1px dashed var(--border); }
+    .hero-metric .lbl { font-size: .8rem; color: var(--muted); }
+    .hero-metric .val { font-weight: 800; font-size: 1.4rem; }
+
+    /* Scroll progress */
+    .progress { position: fixed; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, var(--primary), var(--secondary)); transform-origin: 0 0; scale: 0 1; z-index: 60; }
+
+    /* =====================
+       SECTIONS WRAPPER
+    ======================*/
+    .container { max-width: 1100px; margin: 0 auto; padding: 1.6rem 1rem 3rem; }
+    .section { margin-top: 2.4rem; }
+    .section h2 { font-size: clamp(1.1rem, .9vw + .9rem, 1.8rem); margin: 0 0 1rem; display: flex; align-items: center; gap: .6rem; }
+    .section h2 i { color: var(--primary); }
+
+    /* Tabs / quick nav */
+    .tabs { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .4rem; }
+    .chip { font-size: .9rem; }
+    .chip.active, .chip:hover { box-shadow: var(--ring); }
+
+    /* Cards */
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1rem; }
+    .col-12 { grid-column: span 12; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
+    @media (max-width: 980px) { .col-6 { grid-column: span 12; } .col-4 { grid-column: span 12; } .col-3 { grid-column: span 6; } }
+
+    .card { border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--card); backdrop-filter: blur(var(--blur)); box-shadow: var(--shadow-soft); padding: 1.2rem; }
+    .card h3 { margin: 0 0 .6rem; font-size: 1.2rem; }
+    .muted { color: var(--muted); }
+
+    /* Itinerary grid */
+    .itinerary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    .day-card { position: relative; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow-soft); overflow: hidden; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+    .day-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(2,6,23,.18); }
+    .day-head { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,0)); }
+    .day-head .badge { font-weight: 800; color: white; background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: .3rem .6rem; border-radius: 10px; font-size: .8rem; }
+    .day-body { padding: 1rem; display: grid; gap: .4rem; }
+    .day-body .title { font-weight: 700; }
+    .day-body .kicker { font-size: .9rem; color: var(--muted); }
+
+    /* Details panels */
+    .details { display: none; margin-top: 1rem; border-left: 3px solid var(--primary); }
+    .details.visible { display: block; animation: fadeIn .35s ease; }
+    @keyframes fadeIn { from { opacity: 0; translate: 0 -6px; } to { opacity: 1; translate: 0 0; } }
+
+    .row { display: grid; grid-template-columns: repeat(12, 1fr); gap: .8rem; }
+    .row > * { grid-column: span 12; }
+    @media (min-width: 860px) { .row > .half { grid-column: span 6; } }
+
+    .tag { display: inline-flex; align-items: center; gap: .45rem; font-size: .85rem; padding: .35rem .6rem; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); }
+    .tag i { color: var(--muted); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .75rem .6rem; border-bottom: 1px solid var(--border); text-align: left; }
+    thead th { color: var(--muted); font-weight: 700; }
+    tfoot td { font-weight: 800; color: var(--primary); border-top: 2px solid var(--primary); }
+
+    .notice { padding: .9rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0)); }
+    .notice.warning { border-left: 4px solid var(--warning); }
+    .notice.success { border-left: 4px solid var(--success); }
+
+    /* Back to top */
+    #backToTopBtn {
+      position: fixed; right: 18px; bottom: 18px; z-index: 60; border: 1px solid var(--border); padding: .8rem; border-radius: 50%;
+      background: var(--card); backdrop-filter: blur(var(--blur)); color: var(--text); cursor: pointer; box-shadow: var(--shadow-soft); display: none;
+    }
+    #backToTopBtn:hover { box-shadow: 0 14px 40px rgba(2,6,23,.2); transform: translateY(-2px); }
+
+    /* Print */
+    @media print {
+      body { background: white; color: #000; }
+      .site-header, .hero, .tabs, #backToTopBtn, .progress { display: none !important; }
+      .details { display: block !important; }
+      .card, .day-card { box-shadow: none !important; background: white !important; backdrop-filter: none !important; }
+      a:after { content: " (" attr(href) ")"; font-size: 9pt; color: #555; }
+    }
+  </style>
 </head>
 <body>
+  <!-- Scroll progress bar -->
+  <div class="progress" id="progressBar"></div>
 
-<button onclick="scrollToTop()" id="backToTopBtn" title="Retour en haut"><i class="fas fa-arrow-up"></i></button>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <nav class="nav">
+      <div class="brand"><i class="fa-solid fa-cherry-blossom"></i><span>Japon — Itinéraire Geek</span></div>
+      <div class="nav-actions">
+        <button class="btn ghost" id="themeToggle" title="Basculer clair/sombre"><i class="fa-regular fa-moon"></i><span class="hide-sm">&nbsp;Thème</span></button>
+        <a class="btn" href="#itineraire"><i class="fa-regular fa-map"></i> Voir l’itinéraire</a>
+        <button class="btn primary" onclick="window.print()"><i class="fa-solid fa-file-arrow-down"></i> PDF</button>
+      </div>
+    </nav>
+  </header>
 
-<div class="container">
-    <h1>🌸 Votre Aventure Geek au Japon : 3 Semaines depuis Tokyo 🗼</h1>
-    <p style="text-align: center; font-size: 1.1em;">Un itinéraire interactif et ultra-détaillé axé sur les coûts, la logistique et la culture geek, avec Tokyo comme unique point de base.</p>
-    <p class="warning-text"><strong>Rappel important :</strong> Cet itinéraire est basé sur votre demande d'un hôtel unique à Tokyo. Certaines journées impliquent des temps de transport très longs. Elles sont indiquées par un avertissement.</p>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="eyebrow">Tokyo comme base • 3 semaines</div>
+        <h1>Votre Aventure Geek au Japon <span style="color:var(--primary)">— moderne & interactive</span></h1>
+        <p class="lede">Un itinéraire ultra-détaillé (coûts, logistique, culture pop). Basculez en clair/sombre, filtrez par difficulté, dépliez jour par jour. Conçu pour être <strong>imprimable</strong> et <strong>mobile-friendly</strong>.</p>
+        <div class="hero-cta">
+          <a href="#budget" class="btn"><i class="fa-solid fa-coins"></i> Budget global</a>
+          <a href="#ressources" class="btn ghost"><i class="fa-solid fa-link"></i> Ressources utiles</a>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="hero-card glassy">
+          <div class="hero-metric">
+            <div class="lbl">Durée</div>
+            <div class="val">21 jours</div>
+          </div>
+          <div class="hero-metric">
+            <div class="lbl">Base</div>
+            <div class="val">Tokyo 🗼</div>
+          </div>
+          <div class="hero-metric">
+            <div class="lbl">Période idéale</div>
+            <div class="val">Oct → Nov</div>
+          </div>
+          <div class="hero-metric">
+            <div class="lbl">Geek-o-mètre</div>
+            <div class="val">🔥🔥🔥🔥</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <h2>✨ Introduction au Voyage</h2>
-    <div class="info-item"><i class="fas fa-calendar-alt"></i> <strong>Période :</strong> Mi-Octobre à Fin Novembre</div>
-    <div class="info-item"><i class="fas fa-users"></i> <strong>Voyageurs :</strong> 2 Explorateurs Passionnés</div>
-
-    <div class="recap-section">
-        <h2>💰 Budget Total Estimé du Voyage (pour 2 personnes)</h2>
-        <p>Voici une ventilation détaillée du budget total prévisionnel, basée sur vos estimations et les tarifs actuels. Les taux de change peuvent varier (ici, ~170 ¥ pour 1€).</p>
-        <table class="recap-table">
-            <thead>
-                <tr>
-                    <th>Poste de Dépense</th>
-                    <th>Détail du Calcul</th>
-                    <th>Coût Estimé (€)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>✈️ Billets d'Avion</td>
-                    <td>Estimation fournie de 900€ par personne</td>
-                    <td>1,800€</td>
-                </tr>
-                <tr>
-                    <td>🏨 Hébergement</td>
-                    <td>20 nuits dans un hôtel milieu de gamme à Tokyo (~130€/nuit)</td>
-                    <td>2,600€</td>
-                </tr>
-                <tr>
-                    <td>🚄 Japan Rail Pass</td>
-                    <td>Pass 21 jours pour 2 adultes (2 x 100,000 ¥)</td>
-                    <td>~1,200€</td>
-                </tr>
-                <tr>
-                    <td>🍱 Dépenses sur Place</td>
-                    <td>Total des budgets journaliers (nourriture, entrées, transports locaux)</td>
-                    <td>~1,432€</td>
-                </tr>
-                <tr>
-                    <td>🎁 Extras & Imprévus</td>
-                    <td>Fonds pour souvenirs, shopping geek et dépenses non planifiées (~15%)</td>
-                    <td>~1,050€</td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr class="grand-total-row">
-                    <td colspan="2">BUDGET TOTAL ESTIMÉ POUR LE VOYAGE</td>
-                    <td>~8,082€</td>
-                </tr>
-            </tfoot>
-        </table>
+  <main class="container">
+    <!-- Quick nav / filters -->
+    <div class="section">
+      <div class="tabs" aria-label="filtres">
+        <button class="chip active" data-filter="all"><i class="fa-solid fa-layer-group"></i> Tout</button>
+        <button class="chip" data-filter="tokyo"><i class="fa-solid fa-city"></i> Tokyo</button>
+        <button class="chip" data-filter="courte"><i class="fa-solid fa-person-walking"></i> Courtes</button>
+        <button class="chip" data-filter="longue"><i class="fa-solid fa-train"></i> Longues</button>
+        <button class="chip" data-filter="extreme"><i class="fa-solid fa-bolt"></i> Marathon</button>
+      </div>
     </div>
 
-    <div class="recap-section">
-        <h2>🔗 Ressources et Liens Utiles pour la Préparation</h2>
-        <div class="links-section" style="border: none; padding: 0;">
+    <!-- BUDGET -->
+    <section id="budget" class="section">
+      <h2><i class="fa-solid fa-coins"></i> Budget total estimé (2 pers.)</h2>
+      <div class="card">
+        <p class="muted">Hypothèse taux ~170 ¥ pour 1€.</p>
+        <div class="row">
+          <div class="half">
+            <table>
+              <thead><tr><th>Poste</th><th>Détail</th><th>€</th></tr></thead>
+              <tbody>
+                <tr><td>✈️ Avion</td><td>900€ / pers.</td><td>1 800€</td></tr>
+                <tr><td>🏨 Hébergement</td><td>20 nuits ~130€/nuit</td><td>2 600€</td></tr>
+                <tr><td>🚄 JR Pass</td><td>21 jours (2×100 000 ¥)</td><td>~1 200€</td></tr>
+                <tr><td>🍱 Sur place</td><td>Budgets journaliers</td><td>~1 432€</td></tr>
+                <tr><td>🎁 Extras</td><td>~15%</td><td>~1 050€</td></tr>
+              </tbody>
+              <tfoot><tr><td colspan="2">Total</td><td>~8 082€</td></tr></tfoot>
+            </table>
+          </div>
+          <div class="half">
+            <div class="notice warning"><strong>Important :</strong> Un seul hôtel à Tokyo ⇒ plusieurs journées très longues. Des alternatives sont proposées plus bas (double base Tokyo + Kansai).
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESSOURCES -->
+    <section id="ressources" class="section">
+      <h2><i class="fa-solid fa-link"></i> Ressources utiles</h2>
+      <div class="grid">
+        <div class="col-6">
+          <div class="card">
             <ul>
-                <li><i class="fas fa-subway"></i><strong>JR Pass :</strong> <a href="https://www.japanrailpass.net/fr/" target="_blank">Site officiel pour acheter et s'informer.</a></li>
-                <li><i class="fas fa-wifi"></i><strong>Pocket Wifi / SIM :</strong> <a href="https://www.japan-wireless.com/" target="_blank">Japan Wireless</a> ou via <a href="https://www.klook.com/fr/wifi-sim-card/country/japan/" target="_blank">Klook</a> sont des options populaires.</li>
-                <li><i class="fas fa-clock"></i><strong>Horaires des trains :</strong> <a href="https://world.navitime.com/fr/japan-travel/" target="_blank">Navitime (Japan Travel)</a> est l'application la plus complète pour les touristes (JR et lignes privées).</li>
-                <li><i class="fas fa-suitcase-rolling"></i><strong>Envoi de bagages (Takkyubin) :</strong> <a href="https://www.kuronekoyamato.co.jp/ytc/en/" target="_blank">Yamato Transport</a>, pour voyager léger entre les grandes étapes.</li>
-                <li><i class="fas fa-tint"></i><strong>Horaires des marées de Miyajima :</strong> <a href="https://www.tide-forecast.com/locations/Miyajima/tides/latest" target="_blank">Tide-Forecast</a>, indispensable pour voir le torii "flottant".</li>
+              <li class="tag"><i class="fa-solid fa-train-subway"></i> <a href="https://www.japanrailpass.net/fr/" target="_blank">JR Pass — site officiel</a></li>
+              <li class="tag"><i class="fa-solid fa-wifi"></i> <a href="https://www.japan-wireless.com/" target="_blank">Pocket Wifi — Japan Wireless</a></li>
+              <li class="tag"><i class="fa-regular fa-clock"></i> <a href="https://world.navitime.com/fr/japan-travel/" target="_blank">Horaires — Navitime</a></li>
+              <li class="tag"><i class="fa-solid fa-box"></i> <a href="https://www.kuronekoyamato.co.jp/ytc/en/" target="_blank">Takkyubin — Yamato</a></li>
+              <li class="tag"><i class="fa-solid fa-water"></i> <a href="https://www.tide-forecast.com/locations/Miyajima/tides/latest" target="_blank">Marées — Miyajima</a></li>
             </ul>
+          </div>
         </div>
-    </div>
-    
-    <div class="recap-section">
-        <h2>✅ Checklist Essentielle de Préparation</h2>
-        <p>Actions critiques à réaliser bien avant votre départ pour garantir la disponibilité et éviter le stress.</p>
-        <div class="checklist-section">
-            <h4><i class="fas fa-calendar-check"></i> 3-4 Mois avant</h4>
+        <div class="col-6">
+          <div class="card">
+            <h3>Checklist essentielle</h3>
             <ul>
-                <li><i class="fas fa-plane"></i><strong>Billets d'avion :</strong> Réservez vos vols pour obtenir les meilleurs tarifs.</li>
-                <li><i class="fas fa-hotel"></i><strong>Hébergement principal :</strong> Réservez votre hôtel à Tokyo. Les bons hôtels partent vite.</li>
+              <li class="tag"><i class="fa-regular fa-calendar-check"></i> 3–4 mois : vols + hôtel Tokyo</li>
+              <li class="tag"><i class="fa-solid fa-ticket"></i> 2–3 mois : Ghibli (ventes le 10)</li>
+              <li class="tag"><i class="fa-solid fa-utensils"></i> 1 mois : cafés à thème</li>
+              <li class="tag"><i class="fa-solid fa-sim-card"></i> 1 mois : JR Pass + Pocket Wifi</li>
             </ul>
+          </div>
         </div>
-        <div class="checklist-section">
-            <h4><i class="fas fa-calendar-check"></i> 2-3 Mois avant</h4>
-            <ul>
-                <li><i class="fas fa-magic"></i><strong>Billets Musée Ghibli :</strong> C'est la réservation la plus difficile ! La vente commence le 10 de chaque mois pour le mois suivant (ex: le 10 septembre pour octobre). Soyez prêt, c'est une loterie puis une vente "premier arrivé, premier servi".</li>
-                <li><i class="fas fa-utensils"></i><strong>Cafés à Thème (Pokémon, Kirby) :</strong> Les réservations ouvrent généralement un mois à l'avance, jour pour jour, et sont prises d'assaut en quelques minutes.</li>
-            </ul>
-        </div>
-        <div class="checklist-section">
-            <h4><i class="fas fa-calendar-check"></i> 1 Mois avant</h4>
-            <ul>
-                <li><i class="fas fa-subway"></i><strong>Japan Rail Pass :</strong> Commandez votre "Exchange Order" en ligne.</li>
-                <li><i class="fas fa-wifi"></i><strong>Pocket Wifi / SIM Card :</strong> Réservez en ligne pour une récupération facile à l'aéroport.</li>
-                <li><i class="fas fa-ticket-alt"></i><strong>Autres billets :</strong> Pensez à réserver les billets pour Shibuya Sky, teamLab, ou Universal Studios Japan si prévus.</li>
-            </ul>
-        </div>
-    </div>
-    
-    <h2>🗌 Aperçu de l’Itinéraire (Cliquez pour Déplier)</h2>
-    <div class="itinerary-grid">
-        <div class="day-card" data-target="#jour1"><div class="card-header">Jour 1</div><div class="card-content"><div class="info-icon"><i class="fas fa-plane-arrival"></i></div><h4>Arrivée & Shinjuku</h4><p>Tokyo</p></div></div>
-        <div class="day-card" data-target="#jour2"><div class="card-header">Jour 2</div><div class="card-content"><div class="info-icon"><i class="fas fa-gopuram"></i></div><h4>Asakusa & Ueno</h4><p>Tokyo</p></div></div>
-        <div class="day-card" data-target="#jour3"><div class="card-header">Jour 3</div><div class="card-content"><div class="info-icon"><i class="fas fa-street-view"></i></div><h4>Harajuku & Shibuya</h4><p>Tokyo</p></div></div>
-        <div class="day-card" data-target="#jour4"><div class="card-header">Jour 4</div><div class="card-content"><div class="info-icon"><i class="fas fa-utensils"></i></div><h4>Tsukiji & Ginza</h4><p>Tokyo</p></div></div>
-        <div class="day-card" data-target="#jour5"><div class="card-header">Jour 5</div><div class="card-content"><div class="info-icon"><i class="fas fa-torii-gate"></i></div><h4>Excursion à Nikko</h4><p>Excursion (Moyenne)</p></div></div>
-        <div class="day-card" data-target="#jour6"><div class="card-header">Jour 6</div><div class="card-content"><div class="info-icon"><i class="fas fa-gamepad"></i></div><h4>Pèlerinage Geek</h4><p>Tokyo</p></div></div>
-        <div class="day-card" data-target="#jour7"><div class="card-header">Jour 7</div><div class="card-content"><div class="info-icon"><i class="fas fa-mountain"></i></div><h4>Excursion à Hakone</h4><p>Excursion (Courte)</p></div></div>
-        <div class="day-card" data-target="#jour8"><div class="card-header">Jour 8</div><div class="card-content"><div class="info-icon"><i class="fas fa-pagelines"></i></div><h4>Kyoto (Est)</h4><p>Excursion (Longue)</p></div></div>
-        <div class="day-card" data-target="#jour9"><div class="card-header">Jour 9</div><div class="card-content"><div class="info-icon"><i class="fas fa-robot"></i></div><h4>Odaiba & teamLab</h4><p>Tokyo</p></div></div>
-        <div class="day-card" data-target="#jour10"><div class="card-header">Jour 10</div><div class="card-content"><div class="info-icon"><i class="fas fa-leaf"></i></div><h4>Kyoto (Ouest)</h4><p>Excursion (Longue)</p></div></div>
-        <div class="day-card" data-target="#jour11"><div class="card-header">Jour 11</div><div class="card-content"><div class="info-icon"><i class="fas fa-wave-square"></i></div><h4>Excursion à Kamakura</h4><p>Excursion (Courte)</p></div></div>
-        <div class="day-card" data-target="#jour12"><div class="card-header">Jour 12</div><div class="card-content"><div class="info-icon"><i class="fas fa-torii-gate"></i></div><h4>Kyoto (Sud)</h4><p>Excursion (Longue)</p></div></div>
-        <div class="day-card" data-target="#jour13"><div class="card-header">Jour 13</div><div class="card-content"><div class="info-icon"><i class="fas fa-couch"></i></div><h4>Yokohama / Libre</h4><p>Excursion Facile</p></div></div>
-        <div class="day-card" data-target="#jour14"><div class="card-header">Jour 14</div><div class="card-content"><div class="info-icon"><i class="fas fa-paw"></i></div><h4>Excursion à Nara</h4><p>Excursion (Longue)</p></div></div>
-        <div class="day-card" data-target="#jour15"><div class="card-header">Jour 15</div><div class="card-content"><div class="info-icon"><i class="fas fa-fort-awesome"></i></div><h4>Château d'Himeji</h4><p>Excursion (Très Longue)</p></div></div>
-        <div class="day-card" data-target="#jour16"><div class="card-header">Jour 16</div><div class="card-content"><div class="info-icon"><i class="fas fa-coffee"></i></div><h4>Journée Calme / Ghibli</h4><p>Tokyo</p></div></div>
-        <div class="day-card" data-target="#jour17"><div class="card-header">Jour 17</div><div class="card-content"><div class="info-icon"><i class="fas fa-drumstick-bite"></i></div><h4>Excursion à Osaka</h4><p>Excursion (Longue)</p></div></div>
-        <div class="day-card" data-target="#jour18"><div class="card-header">Jour 18</div><div class="card-content"><div class="info-icon"><i class="fas fa-bomb"></i></div><h4>Hiroshima [Marathon]</h4><p>Excursion Extrême</p></div></div>
-        <div class="day-card" data-target="#jour19"><div class="card-header">Jour 19</div><div class="card-content"><div class="info-icon"><i class="fas fa-couch"></i></div><h4>Journée de Repos</h4><p>Tokyo</p></div></div>
-        <div class="day-card" data-target="#jour20"><div class="card-header">Jour 20</div><div class="card-content"><div class="info-icon"><i class="fas fa-gift"></i></div><h4>Derniers Achats</h4><p>Tokyo</p></div></div>
-        <div class="day-card" data-target="#jour21"><div class="card-header">Jour 21</div><div class="card-content"><div class="info-icon"><i class="fas fa-plane-departure"></i></div><h4>Départ du Japon</h4><p>Aéroport Narita</p></div></div>
-    </div>
-    
-    <div id="details-container">
-        <div class="detailed-day" id="jour1">
-            <h3><i class="fas fa-plane-arrival"></i> Jour 1 – Arrivée & Immersion à Shinjuku</h3>
-            <p>Arrivée à l'aéroport (NRT ou HND), passage de l'immigration et récupération des bagages. Activez votre <strong>JR Pass</strong> et récupérez votre pocket Wi-Fi. Transfert et installation à votre hôtel à Shinjuku. Première exploration du quartier : gratte-ciels, néons et une énergie débordante.</p>
-            <div class="geek-alert"><h4><i class="fas fa-gamepad"></i> Alerte Geek</h4><p>Le soir, après Omoide Yokocho, repérez le grand magasin <strong>Yodobashi Camera</strong> ou <strong>Bic Camera</strong> de Shinjuku. Ce sont des temples de l'électronique sur plusieurs étages, parfaits pour un premier aperçu des dernières nouveautés high-tech.</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-building"></i><strong>Observatoire du Tokyo Metropolitan Govt. :</strong> <a href="https://www.yokoso.metro.tokyo.lg.jp/fr/tenbou/" target="_blank">Infos officielles (gratuit).</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet :</strong> Aéroport Narita → Shinjuku | <strong>Ligne :</strong> Narita Express (N'EX) | <strong>Durée :</strong> ~90 min</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Entièrement couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Dîner (Omoide Yokocho)</span> <span>~3,500 ¥</span></div><div class="cost-item"><span>Boissons (Golden Gai)</span> <span>~1,500 ¥</span></div><div class="cost-item"><span>Pocket Wi-Fi / SIM (coût/jour)</span> <span>~500 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~5,500 ¥ / 35€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour2">
-            <h3><i class="fas fa-gopuram"></i> Jour 2 – Tokyo : Asakusa & Ueno</h3>
-            <p>Visite du Tokyo traditionnel au temple Senso-ji, puis balade culturelle au parc d'Ueno et son marché animé Ameyoko. C'est une journée de contrastes entre le sacré et le populaire.</p>
-            <div class="bonus-section"><h4><i class="fas fa-lightbulb"></i> Idée Bonus : Quartier du Sumo</h4><p>Après Ueno, le quartier de <strong>Ryogoku</strong> n'est qu'à 2 stations JR. Même en dehors des tournois, vous pouvez voir le stade <strong>Kokugikan</strong>, visiter le petit musée du Sumo (gratuit) et dîner dans un restaurant de <strong>"chanko nabe"</strong>, le ragoût riche en protéines des lutteurs.</p></div>
-            <div class="geek-alert"><h4><i class="fas fa-book-open"></i> Alerte Geek</h4><p>À Ueno, le marché d'Ameyoko cache des trésors. Cherchez le bâtiment <strong>Yamashiroya</strong>, un magasin de jouets et de figurines sur 6 étages. Non loin, vous trouverez aussi des salles d'arcade (Taito Station) pour une première session de jeux.</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-landmark"></i><strong>Temple Senso-ji :</strong> <a href="https://www.senso-ji.jp/" target="_blank">Site officiel (japonais).</a></li><li><i class="fas fa-university"></i><strong>Musée National de Tokyo :</strong> <a href="https://www.tnm.jp/" target="_blank">Infos et expositions.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet :</strong> Déplacements dans Tokyo.</div><div><strong>Ligne :</strong> JR Yamanote (circulaire), JR Chuo-Sobu.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> La plupart des trajets entre grands quartiers sont couverts.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Métro (lignes non-JR)</span> <span>~400 ¥</span></div><div class="cost-item"><span>Entrée Musée National de Tokyo</span> <span>1,000 ¥</span></div><div class="cost-item"><span>Nourriture (Konbini, stands, restaurant simple)</span> <span>~4,000 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~5,400 ¥ / 34€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour3">
-            <h3><i class="fas fa-street-view"></i> Jour 3 – Tokyo : Harajuku & Shibuya</h3>
-            <p>Contraste entre la quiétude du sanctuaire Meiji Jingu et l'effervescence de la mode à Harajuku, pour finir au carrefour le plus célèbre du monde, Shibuya Crossing, un véritable symbole de la modernité japonaise.</p>
-            <div class="bonus-section"><h4><i class="fas fa-lightbulb"></i> Idée Bonus</h4><p>Terminez la journée en beauté en montant au <strong>Shibuya Sky</strong> pour une vue panoramique spectaculaire au coucher du soleil. Pensez à réserver votre créneau horaire à l'avance !</p></div>
-            <div class="geek-alert"><h4><i class="fas fa-shopping-cart"></i> Alerte Geek</h4><p>À Shibuya, ne manquez pas le <strong>Nintendo Store</strong> et le <strong>Pokemon Center</strong> dans le même bâtiment (Shibuya Parco). Juste à côté, le grand magasin <strong>Mandarake</strong> est un paradis pour les collectionneurs de mangas, figurines et jeux rétro. Le soir, les salles d'arcade comme GiGO sont incontournables.</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-building"></i><strong>Shibuya Sky :</strong> <a href="https://www.shibuyasky.com/en/" target="_blank">Réservation en ligne obligatoire.</a></li><li><i class="fas fa-store"></i><strong>Shibuya Parco (Nintendo/Pokemon) :</strong> <a href="https://shibuya.parco.jp/en/" target="_blank">Site officiel du centre commercial.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Ligne :</strong> JR Yamanote.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Entièrement couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Entrée Shibuya Sky (optionnel)</span> <span>~2,200 ¥</span></div><div class="cost-item"><span>Crêpe Harajuku</span> <span>~600 ¥</span></div><div class="cost-item"><span>Nourriture</span> <span>~4,000 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~6,800 ¥ / 43€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour4">
-            <h3><i class="fas fa-utensils"></i> Jour 4 – Tokyo : Tsukiji & Ginza</h3>
-            <p>Début de journée gourmand au marché extérieur de Tsukiji, suivi d'une exploration du quartier du luxe de Ginza, où l'architecture et le design sont rois.</p>
-            <div class="bonus-section"><h4><i class="fas fa-lightbulb"></i> Idée Bonus : Théâtre Kabuki & MUJI</h4><p>Si vous êtes amateur de design et d'architecture, ne manquez pas le jardin sur le toit du <strong>Ginza Six</strong>. Pour une expérience shopping unique, explorez le magasin amiral (flagship) de <strong>MUJI</strong>. En fin d'après-midi, tentez l'expérience du <strong>Kabuki-za</strong> en achetant un billet pour un seul acte (*hitomaku-mi*), une façon accessible de découvrir cet art traditionnel.</p></div>
-            <div class="geek-alert"><h4><i class="fas fa-building"></i> Alerte Geek</h4><p>À Ginza, visitez le <strong>Sony Building</strong> (s'il est ouvert lors de votre visite, à vérifier) pour ses expositions interactives. Le <strong>Apple Store</strong> de Ginza est aussi une merveille architecturale. Pour une expérience unique, cherchez le <strong>Hakuhinkan Toy Park</strong>, un immense magasin de jouets pour tous les âges.</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-fish"></i><strong>Marché extérieur de Tsukiji :</strong> <a href="https://www.tsukiji.or.jp/english/" target="_blank">Site officiel.</a></li><li><i class="fas fa-store"></i><strong>Ginza Six :</strong> <a href="https://ginza6.tokyo.e.abf.hp.transer.com/" target="_blank">Site officiel.</a></li><li><i class="fas fa-theater-masks"></i><strong>Théâtre Kabuki-za :</strong> <a href="https://www.kabuki-za.co.jp/eng/" target="_blank">Programme et informations.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Ligne :</strong> Ligne JR Yamanote, puis métro (non-JR).</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Trajets JR couverts.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Métro (lignes non-JR)</span> <span>~400 ¥</span></div><div class="cost-item"><span>Ticket Kabuki (1 acte)</span> <span>~1,500 ¥</span></div><div class="cost-item"><span>Petit-déjeuner/Déjeuner à Tsukiji</span> <span>~3,500 ¥</span></div><div class="cost-item"><span>Dîner</span> <span>~2,500 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~7,900 ¥ / 50€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour5">
-            <h3><i class="fas fa-torii-gate"></i> Jour 5 – Excursion Sacrée à Nikko</h3>
-            <p>Journée consacrée à la visite des sanctuaires et temples de Nikko, classés au patrimoine mondial de l'UNESCO. C'est un plongeon dans l'histoire des shoguns, au cœur d'une nature magnifique.</p>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-landmark"></i><strong>Sanctuaire Toshogu :</strong> <a href="https://www.toshogu.jp/english/" target="_blank">Site officiel.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet A/R :</strong> Shinjuku ↔ Nikko</div><div><strong>Lignes :</strong> Shinkansen (Tokyo → Utsunomiya) + Ligne JR Nikko (Utsunomiya → Nikko)</div><div><strong>Durée :</strong> ~2h30 par trajet (5h A/R)</div><div class="last-train"><strong>Dernier train pour Tokyo :</strong> ~19:30 depuis Nikko (à vérifier sur place).</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Trajets principaux couverts par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Bus local à Nikko (pass journée)</span> <span>~600 ¥</span></div><div class="cost-item"><span>Entrée Sanctuaire Toshogu</span> <span>1,300 ¥</span></div><div class="cost-item"><span>Nourriture (Déjeuner + Snacks)</span> <span>~3,000 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~4,900 ¥ / 31€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour6">
-            <h3><i class="fas fa-gamepad"></i> Jour 6 – Tokyo : Pèlerinage Geek</h3>
-            <p>Journée de repos des longs trajets. Immersion totale dans la culture pop à Akihabara, le "quartier électrique", et Nakano Broadway, le temple de la collectionnite. Pour le soir, une expérience immersive et artistique.</p>
-            <div class="bonus-section"><h4><i class="fas fa-lightbulb"></i> Idée Bonus : Café à thème</h4><p>C'est la journée idéale pour réserver une table dans un café à thème. Les plus populaires (<strong>Pokémon Café, Kirby Café, Square Enix Café</strong>) demandent des réservations en ligne, souvent ouvertes un mois à l'avance jour pour jour. Vérifiez leurs sites pour ne pas manquer le créneau !</p></div>
-            <div class="geek-alert"><h4><i class="fas fa-star"></i> Alerte Geek</h4><p><strong>Matin à Akihabara :</strong> Explorez <strong>Yodobashi Akiba</strong>, <strong>Sofmap</strong>, et les innombrables boutiques de figurines. Ne manquez pas <strong>Super Potato</strong> pour le retrogaming. <strong>Après-midi à Nakano Broadway :</strong> C'est LE paradis des chineurs de goodies rares.</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-gamepad"></i><strong>Super Potato (Akihabara) :</strong> <a href="http://superpotato.com/" target="_blank">Site officiel (en japonais).</a></li><li><i class="fas fa-palette"></i><strong>teamLab Borderless (Optionnel) :</strong> Une expérience artistique numérique inoubliable. <a href="https://www.teamlab.art/e/borderless-azabudai/" target="_blank">Réservation en ligne obligatoire.</a></li><li><i class="fas fa-utensils"></i><strong>Pokémon Café :</strong> <a href="https://www.pokemoncenter-online.com/cafe/en/" target="_blank">Site de réservation.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Ligne :</strong> JR Yamanote, JR Chuo.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Entièrement couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Arcades / Gachapon</span> <span>~2,000 ¥</span></div><div class="cost-item"><span>Repas Café à thème</span> <span>~3,500 ¥</span></div><div class="cost-item"><span>Nourriture (autre repas)</span> <span>~1,500 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~7,000 ¥ / 44€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour7">
-            <h3><i class="fas fa-mountain"></i> Jour 7 – Excursion à Hakone</h3>
-            <p>Découverte de la région montagneuse de Hakone, célèbre pour ses onsen, ses musées et, avec un peu de chance, ses vues imprenables sur le Mont Fuji.</p>
-            <div class="geek-alert"><h4><i class="fas fa-robot"></i> Alerte Geek</h4><p>Hakone est le lieu de l'action de l'anime culte <strong>Neon Genesis Evangelion</strong>. Vous trouverez des distributeurs de boissons, des casiers et même des cartes touristiques aux couleurs de la série. Un pèlerinage discret mais amusant pour les fans.</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-ticket-alt"></i><strong>Hakone Free Pass :</strong> <a href="https://www.odakyu.jp/english/passes/hakone/" target="_blank">Informations sur le pass (achat sur place).</a></li><li><i class="fas fa-palette"></i><strong>Musée en Plein Air de Hakone :</strong> <a href="https://www.hakone-oam.or.jp/en/" target="_blank">Site officiel.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet A/R :</strong> Shinjuku ↔ Hakone-Yumoto</div><div><strong>Lignes :</strong> Shinkansen (Tokyo → Odawara) + Ligne Hakone Tozan (non-JR).</div><div><strong>Durée :</strong> ~1h30 par trajet (3h A/R)</div><div class="last-train"><strong>Dernier train pour Tokyo :</strong> ~21:30 depuis Odawara.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Shinkansen jusqu'à Odawara couvert.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Hakone Free Pass (depuis Odawara)</span> <span>5,000 ¥</span></div><div class="cost-item"><span>Nourriture (Déjeuner + Snacks)</span> <span>~3,500 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~8,500 ¥ / 54€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour8">
-            <h3><i class="fas fa-pagelines"></i> Jour 8 – Excursion à Kyoto (Est)</h3>
-            <p class="warning-text">Journée longue ! Près de 6h de transport A/R. Partez à l'aube.</p>
-            <p>Découverte du quartier historique de Higashiyama : temple Kiyomizu-dera, ruelles Sannenzaka et Ninenzaka, et le quartier de Gion en soirée.</p>
-            <div class="geek-alert"><h4><i class="fas fa-building"></i> Alerte Geek</h4><p>Près de la gare de Kyoto, vous trouverez un immense <strong>Yodobashi Camera</strong> et un <strong>Book Off Super Bazaar</strong> (livres, jeux, figurines d'occasion) sur plusieurs étages. Parfait pour commencer ou finir la journée.</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-landmark"></i><strong>Temple Kiyomizu-dera :</strong> <a href="https://www.kiyomizudera.or.jp/en/" target="_blank">Site officiel.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet A/R :</strong> Tokyo ↔ Kyoto</div><div><strong>Ligne :</strong> Shinkansen Tokaido (trains Hikari)</div><div><strong>Durée :</strong> ~2h45 par trajet (~5h30 A/R)</div><div class="last-train"><strong>Dernier Shinkansen pour Tokyo :</strong> ~21:30 depuis Kyoto.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Entièrement couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Bus à Kyoto (pass journée)</span> <span>700 ¥</span></div><div class="cost-item"><span>Entrée Kiyomizu-dera</span> <span>400 ¥</span></div><div class="cost-item"><span>Nourriture</span> <span>~4,000 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~5,100 ¥ / 32€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour9">
-            <h3><i class="fas fa-robot"></i> Jour 9 – Tokyo : Odaiba & teamLab</h3>
-            <p>Journée plus calme consacrée à l'île futuriste d'Odaiba. Au programme : architecture moderne, robots géants, musées interactifs et vues spectaculaires sur la baie de Tokyo.</p>
-            <div class="geek-alert"><h4><i class="fas fa-star"></i> Alerte Geek</h4><p>Odaiba est un incontournable : la statue du <strong>Gundam Unicorn</strong> grandeur nature devant DiverCity, le musée des sciences <strong>Miraikan</strong>, le bâtiment de Fuji TV, et le musée d'art numérique <strong>teamLab Borderless</strong> (à Azabudai Hills, mais souvent associé à Odaiba).</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-robot"></i><strong>Miraikan (Musée des sciences) :</strong> <a href="https://www.miraikan.jst.go.jp/en/" target="_blank">Site officiel.</a></li><li><i class="fas fa-palette"></i><strong>teamLab Borderless :</strong> <a href="https://www.teamlab.art/e/borderless-azabudai/" target="_blank">Réservation en ligne obligatoire.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Ligne :</strong> JR Yamanote + monorail Yurikamome (non-JR).</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Transport Yurikamome</span> <span>~800 ¥</span></div><div class="cost-item"><span>Entrée Miraikan</span> <span>630 ¥</span></div><div class="cost-item"><span>Entrée teamLab</span> <span>3,800 ¥</span></div><div class="cost-item"><span>Nourriture</span> <span>~4,000 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~9,230 ¥ / 58€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour10">
-            <h3><i class="fas fa-leaf"></i> Jour 10 – Excursion à Kyoto (Ouest)</h3>
-            <p class="warning-text">Journée longue ! Près de 6h de transport A/R.</p>
-            <p>Direction l'ouest de Kyoto pour la célèbre bambouseraie d'Arashiyama, le temple Tenryu-ji et le pont Togetsukyo.</p>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-landmark"></i><strong>Temple Tenryu-ji :</strong> <a href="http://www.tenryuji.com/en/" target="_blank">Site officiel.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet A/R :</strong> Tokyo ↔ Kyoto ↔ Arashiyama</div><div><strong>Lignes :</strong> Shinkansen (Tokyo ↔ Kyoto) + Ligne JR Sagano (Kyoto ↔ Saga-Arashiyama)</div><div><strong>Durée :</strong> ~3h par trajet (~6h A/R)</div><div class="last-train"><strong>Dernier Shinkansen pour Tokyo :</strong> ~21:30 depuis Kyoto.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Entièrement couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Entrée Temple Tenryu-ji</span> <span>500 ¥</span></div><div class="cost-item"><span>Location barque (optionnel)</span> <span>~1,500 ¥</span></div><div class="cost-item"><span>Nourriture</span> <span>~4,000 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~6,000 ¥ / 38€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour11">
-            <h3><i class="fas fa-wave-square"></i> Jour 11 – Excursion à Kamakura</h3>
-            <p>Une excursion d'une journée beaucoup plus reposante. Visite du Grand Bouddha (Daibutsu), des temples zen et de l'ambiance balnéaire de l'ancienne capitale.</p>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-landmark"></i><strong>Grand Bouddha (Kotoku-in) :</strong> <a href="https://www.kotoku-in.jp/en/" target="_blank">Site officiel.</a></li><li><i class="fas fa-landmark"></i><strong>Temple Hasedera :</strong> <a href="https://www.hasedera.jp/en/" target="_blank">Site officiel.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet A/R :</strong> Shinjuku ↔ Kamakura</div><div><strong>Lignes :</strong> Ligne JR Shonan-Shinjuku.</div><div><strong>Durée :</strong> ~1h par trajet (~2h A/R)</div><div class="last-train">Trains très fréquents jusqu'à tard dans la soirée.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Les trajets sur les lignes JR sont couverts.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Pass local (Enoden)</span> <span>~800 ¥</span></div><div class="cost-item"><span>Entrée Grand Bouddha</span> <span>300 ¥</span></div><div class="cost-item"><span>Entrée Temple Hasedera</span> <span>400 ¥</span></div><div class="cost-item"><span>Nourriture (Déjeuner + snacks)</span> <span>~4,000 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~5,500 ¥ / 35€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour12">
-            <h3><i class="fas fa-torii-gate"></i> Jour 12 – Excursion à Kyoto (Sud)</h3>
-            <p class="warning-text">Journée longue ! Près de 6h de transport A/R.</p>
-            <p>Randonnée à travers les milliers de torii vermillon du sanctuaire Fushimi Inari-taisha.</p>
-            <div class="geek-alert"><h4><i class="fas fa-building"></i> Alerte Geek</h4><p>Le siège social de <strong>Nintendo</strong> se trouve à Kyoto, non loin de cette zone. Bien qu'il ne se visite pas, passer devant le bâtiment (après une recherche sur Google Maps) est un pèlerinage pour tout fan qui se respecte.</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-landmark"></i><strong>Sanctuaire Fushimi Inari :</strong> <a href="http://inari.jp/en/" target="_blank">Site officiel.</a></li><li><i class="fas fa-map-marker-alt"></i><strong>Nintendo HQ (extérieur) :</strong> Cherchez "Nintendo Headquarters Kyoto" sur Google Maps.</li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet A/R :</strong> Tokyo ↔ Kyoto ↔ Inari</div><div><strong>Lignes :</strong> Shinkansen (Tokyo ↔ Kyoto) + Ligne JR Nara (Kyoto ↔ Inari)</div><div><strong>Durée :</strong> ~2h50 par trajet (~5h40 A/R)</div><div class="last-train"><strong>Dernier Shinkansen pour Tokyo :</strong> ~21:30 depuis Kyoto.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Entièrement couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Entrée Fushimi Inari</span> <span>Gratuit</span></div><div class="cost-item"><span>Nourriture (stands de rue + déjeuner)</span> <span>~3,500 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~3,500 ¥ / 22€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour13">
-            <h3><i class="fas fa-couch"></i> Jour 13 – Tokyo : Journée Libre / Alternative Yokohama</h3>
-            <p>Une journée pour souffler. Soit en explorant des quartiers moins touristiques de Tokyo comme Shimokitazawa, soit en optant pour une excursion facile et dépaysante à Yokohama.</p>
-            <div class="bonus-section"><h4><i class="fas fa-lightbulb"></i> Alternative : Excursion à Yokohama</h4><p>À seulement 30-45 minutes de Tokyo, Yokohama offre une superbe bouffée d'air. Visitez son immense quartier chinois, le <strong>CupNoodles Museum</strong> pour une expérience ludique, et surtout, ne manquez pas la <strong>Gundam Factory</strong> avec son robot géant qui bouge (vérifiez bien qu'elle soit toujours ouverte lors de votre visite !).</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-robot"></i><strong>Gundam Factory Yokohama :</strong> <a href="https://gundam-factory.net/" target="_blank">Site Officiel (Vérifiez les dates d'ouverture !)</a></li><li><i class="fas fa-utensils"></i><strong>CupNoodles Museum :</strong> <a href="https://www.cupnoodles-museum.jp/en/yokohama/" target="_blank">Site Officiel.</a></li></ul></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Train pour Yokohama (non-JR si Odakyu)</span> <span>~1,000 ¥</span></div><div class="cost-item"><span>Entrée Gundam Factory</span> <span>~1,650 ¥</span></div><div class="cost-item"><span>Entrée CupNoodles Museum</span> <span>500 ¥</span></div><div class="cost-item"><span>Nourriture</span> <span>~4,000 ¥</span></div><div class="cost-item"><strong>Total estimé (Yokohama) :</strong> <strong class="cost-total">~7,150 ¥ / 45€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour14">
-            <h3><i class="fas fa-paw"></i> Jour 14 – Excursion à Nara</h3>
-            <p class="warning-text">Journée longue ! Près de 7-8h de transport A/R. Partez très tôt.</p>
-            <p>Visite de la première capitale impériale, célèbre pour ses daims en liberté et son Grand Bouddha.</p>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-landmark"></i><strong>Temple Todai-ji :</strong> <a href="https://www.todaiji.or.jp/en/" target="_blank">Site officiel.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet A/R :</strong> Tokyo → Kyoto → Nara</div><div><strong>Lignes :</strong> Shinkansen (Tokyo ↔ Kyoto) + Ligne JR Nara (Kyoto ↔ Nara)</div><div><strong>Durée :</strong> ~3h45 par trajet (~7h30 A/R)</div><div class="last-train"><strong>Dernier train pour Tokyo :</strong> Départ de Nara vers 20:00 pour attraper le dernier Shinkansen à Kyoto (~21:30).</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Entièrement couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Entrée Todai-ji</span> <span>600 ¥</span></div><div class="cost-item"><span>Nourriture (Déjeuner + Snacks)</span> <span>~3,500 ¥</span></div><div class="cost-item"><span>Shika Senbei (biscuits pour daims)</span> <span>200 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~4,300 ¥ / 27€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour15">
-            <h3><i class="fas fa-fort-awesome"></i> Jour 15 – Excursion au Château d'Himeji</h3>
-            <p class="warning-text">Encore une journée très longue avec 6-7h de transport. C'est plus faisable qu'Hiroshima mais reste intense.</p>
-            <p>Visite du plus beau et célèbre château féodal du Japon, le "Héron Blanc".</p>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-chess-rook"></i><strong>Château d'Himeji :</strong> <a href="https://www.city.himeji.lg.jp/castle/index.html" target="_blank">Site officiel (en anglais).</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet A/R :</strong> Tokyo ↔ Himeji</div><div><strong>Ligne :</strong> Shinkansen Tokaido-Sanyo (train Hikari)</div><div><strong>Durée :</strong> ~3h30 par trajet (~7h A/R)</div><div class="last-train"><strong>Dernier Shinkansen pour Tokyo :</strong> ~20:00 depuis Himeji.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Entièrement couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Entrée Château + Jardin Koko-en</span> <span>1,050 ¥</span></div><div class="cost-item"><span>Nourriture (Déjeuner)</span> <span>~2,500 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~3,550 ¥ / 23€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour16">
-            <h3><i class="fas fa-coffee"></i> Jour 16 – Tokyo : Journée Calme / Ghibli</h3>
-            <p>Après une longue excursion, une journée tranquille s'impose. Explorez des quartiers calmes comme Kichijoji. L'attraction phare est le <strong>Musée Ghibli</strong>, mais attention : l'obtention de billets est une véritable épreuve et doit être planifiée des mois à l'avance.</p>
-            <div class="geek-alert"><h4><i class="fas fa-magic"></i> Option Principale : Ghibli</h4><p>Le <strong>Musée Ghibli</strong> à Mitaka (accessible depuis Kichijoji) est un rêve pour tout fan. Si vous n'avez pas de billet, le parc Inokashira et le quartier de Kichijoji sont très agréables à explorer.</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-ticket-alt"></i><strong>Musée Ghibli :</strong> Les billets sont vendus via une loterie puis une vente générale le 10 de chaque mois pour le mois suivant. <a href="https://www.ghibli-museum.jp/en/tickets/" target="_blank">Site officiel avec les règles de vente.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Ligne :</strong> Ligne JR Chuo pour Kichijoji.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Entrée Musée Ghibli (si réservé)</span> <span>1,000 ¥</span></div><div class="cost-item"><span>Nourriture (cafés, déjeuner tranquille)</span> <span>~4,500 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~5,500 ¥ / 35€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour17">
-            <h3><i class="fas fa-drumstick-bite"></i> Jour 17 – Excursion à Osaka</h3>
-            <p class="warning-text">Journée longue ! Près de 6h de transport A/R.</p>
-            <p>Journée dédiée à la capitale de la gastronomie japonaise. Ambiance électrique et dégustations à Dotonbori. Possibilité d'une journée entière à Universal Studios.</p>
-            <div class="geek-alert"><h4><i class="fas fa-gamepad"></i> Alerte Geek</h4><p>À Osaka, le quartier de <strong>Den Den Town</strong> est l'équivalent d'Akihabara. Mais l'attraction n°1 est <strong>Universal Studios Japan (USJ)</strong> avec le <strong>Super Nintendo World</strong>. Si vous choisissez cette option, consacrez-y la journée entière.</p></div>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-ticket-alt"></i><strong>Universal Studios Japan :</strong> <a href="https://www.usj.co.jp/web/en/us" target="_blank">Achetez vos billets à l'avance !</a> L'accès à Super Nintendo World peut nécessiter un "Timed Entry Ticket" à obtenir via l'application une fois dans le parc, ou un Express Pass acheté en amont.</li><li><i class="fas fa-chess-rook"></i><strong>Château d'Osaka :</strong> <a href="https://www.osakacastle.net/" target="_blank">Site officiel.</a></li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet A/R :</strong> Tokyo ↔ Osaka (Shin-Osaka)</div><div><strong>Ligne :</strong> Shinkansen Tokaido (trains Hikari)</div><div><strong>Durée :</strong> ~3h par trajet (~6h A/R)</div><div class="last-train"><strong>Dernier Shinkansen pour Tokyo :</strong> ~21:20 depuis Shin-Osaka.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Métro à Osaka</span> <span>~800 ¥</span></div><div class="cost-item"><span>Nourriture (Kuidaore ! Takoyaki, Okonomiyaki...)</span> <span>~5,000 ¥</span></div><div class="cost-item"><span>Entrée Château d'Osaka</span> <span>600 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~6,400 ¥ / 41€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour18">
-            <h3><i class="fas fa-bomb"></i> Jour 18 – [MARATHON] Hiroshima & Miyajima</h3>
-            <p class="warning-text">Journée marathon la plus extrême. Plus de 10h de transport. C'est un défi. Alternative : ne faire qu'Hiroshima pour gagner 2h.</p>
-            <p>Visite émouvante du Mémorial de la Paix, puis traversée pour voir le torii flottant de Miyajima.</p>
-            <div class="links-section"><h4><i class="fas fa-link"></i> Liens et Réservations</h4><ul><li><i class="fas fa-monument"></i><strong>Musée du Mémorial de la Paix :</strong> <a href="https://hpmmuseum.jp/modules/info/index.php?action=PageView&page_id=51&lang=eng" target="_blank">Site officiel.</a></li><li><i class="fas fa-landmark"></i><strong>Sanctuaire d'Itsukushima :</strong> <a href="http://www.itsukushimajinja.jp/index.html" target="_blank">Site officiel (japonais).</a></li><li><i class="fas fa-tint"></i><strong>Horaires des Marées :</strong> Lien disponible dans la section "Ressources" en haut du document.</li></ul></div>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet A/R :</strong> Tokyo ↔ Hiroshima ↔ Miyajimaguchi</div><div><strong>Lignes :</strong> Shinkansen + Ligne JR Sanyo + Ferry JR</div><div><strong>Durée :</strong> ~5h par trajet (~10h A/R)</div><div class="last-train"><strong>Dernier Shinkansen pour Tokyo :</strong> ~19:30 depuis Hiroshima.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Tout est couvert.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Tramway à Hiroshima</span> <span>~400 ¥</span></div><div class="cost-item"><span>Entrée Musée du Mémorial</span> <span>200 ¥</span></div><div class="cost-item"><span>Entrée Sanctuaire Itsukushima</span> <span>300 ¥</span></div><div class="cost-item"><span>Nourriture (rapide)</span> <span>~3,500 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~4,400 ¥ / 28€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour19">
-            <h3><i class="fas fa-couch"></i> Jour 19 – Tokyo : Journée de Repos</h3>
-            <p>Une journée impérative pour récupérer du marathon de la veille. Grasse matinée, exploration lente d'un quartier comme Yanaka (vieux Tokyo) ou Daikanyama (chics boutiques), ou simplement se détendre dans un café.</p>
-            <div class="bonus-section"><h4><i class="fas fa-lightbulb"></i> Idée Bonus : Onsen Urbain</h4><p>Pour une relaxation ultime, terminez la journée dans un grand complexe onsen comme le <strong>Spa LaQua</strong> au Tokyo Dome City ou le <strong>Thermae-Yu</strong> à Shinjuku.</p></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Entrée Onsen (optionnel)</span> <span>~3,000 ¥</span></div><div class="cost-item"><span>Nourriture</span> <span>~4,000 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~7,000 ¥ / 44€</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour20">
-            <h3><i class="fas fa-gift"></i> Jour 20 – Derniers achats à Tokyo</h3>
-            <p>Dernière journée complète pour le shopping de souvenirs. Pensez aux grands magasins (Takashimaya, Isetan), aux magasins spécialisés (Loft, Tokyu Hands) ou aux bazars géants comme Don Quijote. C'est aussi le moment de retourner dans un Book Off pour les dernières trouvailles.</p>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Ligne :</strong> JR Yamanote.</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Couvert par le JR Pass.</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Nourriture</span> <span>~4,000 ¥</span></div><div class="cost-item"><span>Budget Souvenirs</span> <span>... ¥ (très variable !)</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~4,000 ¥ + Shopping / 25€ + Shopping</strong></div></div>
-        </div>
-        <div class="detailed-day" id="jour21">
-            <h3><i class="fas fa-plane-departure"></i> Jour 21 – Départ du Japon</h3>
-            <p>Selon l'heure de votre vol, profitez d'un dernier petit-déjeuner japonais. Direction l'aéroport de Narita (NRT).</p>
-            <div class="transport-section"><h4><i class="fas fa-train"></i> Logistique Transport</h4><div><strong>Trajet :</strong> Shinjuku → Aéroport Narita</div><div><strong>Ligne :</strong> Narita Express (N'EX)</div><div class="jr-pass-info"><i class="fas fa-check-circle"></i> Si votre JR Pass de 21 jours est encore valide, ce trajet est couvert !</div></div>
-            <div class="cost-section"><h4><i class="fas fa-wallet"></i> Budget Détaillé du Jour (par personne)</h4><div class="cost-item"><span>Nourriture (Petit-déjeuner/Snacks)</span> <span>~1,500 ¥</span></div><div class="cost-item"><strong>Total estimé :</strong> <strong class="cost-total">~1,500 ¥ / 10€</strong></div></div>
-        </div>
-    </div>
+      </div>
+    </section>
 
-    <div class="recap-section">
-        <h2>💡 Suggestions d'Activités Alternatives & Conseils Pro</h2>
-        <p>Pour personnaliser davantage votre voyage, voici des options classées par thèmes que vous pouvez interchanger avec les journées "libres" ou "calmes" de l'itinéraire.</p>
-        <h3>1. Pour les Geeks et Amoureux de Pop Culture (Niveau Expert)</h3>
-        <div class="bonus-section"><h4>Explorer l'île artificielle d'Odaiba (Tokyo)</h4><p><strong>Quoi ?</strong> Une journée entière sur cette île futuriste. Au programme : la statue du Gundam Unicorn grandeur nature qui s'illumine et se transforme, le musée des sciences du futur Miraikan (avec le robot Asimo), le bâtiment de Fuji TV et des vues incroyables sur le Rainbow Bridge.</p><p><strong>Comment l'intégrer ?</strong> C'est une excellente alternative pour une journée calme comme le Jour 18, offrant une expérience geek plus relaxante qu'une course dans les magasins.</p></div>
-        <div class="bonus-section"><h4>Plonger dans l'univers des Cafés à Thème</h4><p><strong>Quoi ?</strong> Le Japon est le roi des cafés à thème. Pokémon Café, Kirby Café, Square Enix Café (pour les fans de Final Fantasy), etc. C'est une expérience culinaire et immersive.</p><p><strong>Comment l'intégrer ?</strong> Idéal pour un repas de midi ou une pause goûter lors d'une journée à Tokyo (Jour 10 ou Jour 20). Attention : Les plus populaires (Pokémon, Kirby) nécessitent une réservation en ligne, souvent prise d'assaut un mois à l'avance jour pour jour.</p></div>
-        <div class="bonus-section"><h4>Découvrir Ikebukuro, l'autre capitale Geek</h4><p><strong>Quoi ?</strong> Souvent considéré comme le "paradis des fans féminines" d'anime/manga, Ikebukuro est tout aussi riche qu'Akihabara. On y trouve le siège d'Animate, des boutiques spécialisées sur la Otome Road, et l'immense centre commercial Sunshine City avec un grand Pokémon Center et un observatoire.</p><p><strong>Comment l'intégrer ?</strong> Peut être combiné avec Shinjuku ou Shibuya, ou faire l'objet d'une demi-journée dédiée lors d'un jour "calme".</p></div>
-        <h3>2. Pour une Immersion Culturelle et Unique</h3>
-        <div class="bonus-section"><h4>Assister à une séance de Kabuki (un seul acte)</h4><p><strong>Quoi ?</strong> Le Kabuki est le théâtre traditionnel japonais, grandiose et coloré. Il est possible d'acheter un billet pour un seul acte (hitomaku-mi) au théâtre Kabuki-za à Ginza. C'est une option abordable (environ 10-20€) et courte (environ 1h) pour découvrir cet art.</p><p><strong>Comment l'intégrer ?</strong> Parfait pour conclure la journée Tsukiji & Ginza (Jour 4).</p></div>
-        <div class="bonus-section"><h4>Visiter le quartier du Sumo à Ryogoku (Tokyo)</h4><p><strong>Quoi ?</strong> Même en dehors des périodes de tournoi, le quartier de Ryogoku respire le sumo. Vous pouvez visiter le stade Kokugikan, le musée du Sumo (gratuit) et, surtout, manger un "chanko nabe" (le ragoût des lutteurs) dans un des nombreux restaurants tenus par d'anciens sumos.</p><p><strong>Comment l'intégrer ?</strong> Ryogoku est proche d'Asakusa et Ueno, cela peut donc être une excellente fin pour le Jour 2.</p></div>
-        <div class="bonus-section"><h4>Se détendre dans un Super Sento (Onsen Urbain)</h4><p><strong>Quoi ?</strong> Des complexes de bains publics modernes et immenses, avec de multiples bassins (intérieurs, extérieurs, jacuzzi, etc.), saunas, et souvent des restaurants et des salles de relaxation. Une expérience onsen sans quitter Tokyo.</p><p><strong>Comment l'intégrer ?</strong> Idéal pour une soirée de récupération après une longue journée d'excursion, par exemple à la fin du Jour 19 (Journée de Repos). Le Spa LaQua (au Tokyo Dome) ou le Thermae-Yu (à Shinjuku) sont d'excellentes options.</p></div>
-        <h3>3. Pour les Amoureux de la Nature et des Paysages</h3>
-        <div class="bonus-section"><h4>Randonner sur le Mont Takao (Tokyo)</h4><p><strong>Quoi ?</strong> Une montagne sacrée à seulement 1h de train de Shinjuku. On peut y monter à pied par des sentiers thématiques ou en funiculaire. Au sommet, la vue sur Tokyo (et parfois le Mont Fuji) est superbe. On y trouve aussi un très beau temple.</p><p><strong>Comment l'intégrer ?</strong> Une excellente alternative pour une journée libre (Jour 12 ou 19), offrant une bouffée d'air frais sans les longs temps de transport.</p></div>
-        <div class="bonus-section"><h4>Découvrir Kawagoe, la "Petite Edo"</h4><p><strong>Quoi ?</strong> À environ 45 minutes de Tokyo, Kawagoe est une ville qui a conservé l'architecture et l'atmosphère de l'époque d'Edo (l'ancien nom de Tokyo), avec ses entrepôts traditionnels (kurazukuri).</p><p><strong>Comment l'intégrer ?</strong> Parfait pour une demi-journée ou une journée complète si vous voulez une expérience historique différente de Kyoto, plus axée sur la vie des marchands de l'époque.</p></div>
-        <h3>4. Une Alternative Majeure pour Structurer le Voyage</h3>
-        <div class="bonus-section"><h4>L'Option "Confort" : Diviser le séjour en Deux Bases (Tokyo & Kyoto/Osaka)</h4><p><strong>Quoi ?</strong> Au lieu de faire 100% du séjour depuis Tokyo, passer la deuxième moitié du voyage dans un hôtel à Kyoto ou Osaka.</p><p><strong>Pourquoi ?</strong> C'est le conseil le plus important que je puisse vous donner pour transformer votre voyage.</p><ul><li><strong>Gain de temps et d'énergie colossal :</strong> Vous économisez 5 à 6 heures de train par jour pour chaque excursion dans le Kansai. Ce temps est directement réinvesti en visites, en repos ou en exploration nocturne.</li><li><strong>Nouvelles destinations possibles :</strong> Un camp de base à Osaka rend une excursion à Koyasan (montagne sacrée avec nuit en temple) non seulement possible, mais facile.</li><li><strong>Immersion plus profonde :</strong> Vous pourrez profiter des temples de Kyoto tôt le matin (sans la foule) et de la vie nocturne trépidante d'Osaka, ce qui est impossible en rentrant à Tokyo chaque soir.</li></ul><p><strong>Comment l'intégrer ?</strong> Par exemple : Jours 1 à 11 à Tokyo, puis le matin du Jour 12, prendre le Shinkansen pour Kyoto/Osaka, y déposer vos valises (envoyées la veille par takkyubin) et commencer la deuxième partie du voyage. Le coût du second hôtel est souvent compensé par le gain de confort et de temps inestimable.</p></div>
-    </div>
-    
-    <div class="recap-section">
-        <h2>📊 Récapitulatif Budgétaire des Dépenses sur Place (par personne)</h2>
-        <p>Ce tableau récapitule les dépenses quotidiennes estimées pour les activités, la nourriture et les transports locaux non couverts par le JR Pass.</p>
-        <table class="recap-table">
-            <thead><tr><th>Jour</th><th>Coût Estimé (¥)</th><th>Coût Estimé (€)</th></tr></thead>
-            <tbody>
-                <tr><td>1</td><td>5,500 ¥</td><td>35€</td></tr>
-                <tr><td>2</td><td>5,400 ¥</td><td>34€</td></tr>
-                <tr><td>3</td><td>6,800 ¥</td><td>43€</td></tr>
-                <tr><td>4</td><td>7,900 ¥</td><td>50€</td></tr>
-                <tr><td>5</td><td>4,900 ¥</td><td>31€</td></tr>
-                <tr><td>6</td><td>7,000 ¥</td><td>44€</td></tr>
-                <tr><td>7</td><td>8,500 ¥</td><td>54€</td></tr>
-                <tr><td>8</td><td>5,100 ¥</td><td>32€</td></tr>
-                <tr><td>9</td><td>9,230 ¥</td><td>58€</td></tr>
-                <tr><td>10</td><td>6,000 ¥</td><td>38€</td></tr>
-                <tr><td>11</td><td>5,500 ¥</td><td>35€</td></tr>
-                <tr><td>12</td><td>3,500 ¥</td><td>22€</td></tr>
-                <tr><td>13</td><td>7,150 ¥</td><td>45€</td></tr>
-                <tr><td>14</td><td>4,300 ¥</td><td>27€</td></tr>
-                <tr><td>15</td><td>3,550 ¥</td><td>23€</td></tr>
-                <tr><td>16</td><td>5,500 ¥</td><td>35€</td></tr>
-                <tr><td>17</td><td>6,400 ¥</td><td>41€</td></tr>
-                <tr><td>18</td><td>4,400 ¥</td><td>28€</td></tr>
-                <tr><td>19</td><td>7,000 ¥</td><td>44€</td></tr>
-                <tr><td>20</td><td>4,000 ¥</td><td>25€</td></tr>
-                <tr><td>21</td><td>1,500 ¥</td><td>10€</td></tr>
-            </tbody>
-            <tfoot><tr class="recap-total-row"><td>TOTAL (par personne)</td><td>121,030 ¥</td><td>~716€</td></tr></tfoot>
-        </table>
-    </div>
-</div>
+    <!-- ITINERAIRE -->
+    <section id="itineraire" class="section">
+      <h2><i class="fa-regular fa-map"></i> Aperçu de l’itinéraire (cliquez pour déplier)</h2>
+      <div class="itinerary-grid" id="grid">
+        <!-- Template example (repeat with data-filter)
+        <article class="day-card" data-target="#jour1" data-tags="tokyo">
+          <div class="day-head"><span class="badge">Jour 1</span><span class="muted"><i class="fa-solid fa-location-dot"></i> Tokyo</span></div>
+          <div class="day-body"><div class="title">Arrivée & Shinjuku</div><div class="kicker"><i class="fa-solid fa-plane-arrival"></i> Immersion</div></div>
+        </article>
+        -->
+      </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const dayCards = document.querySelectorAll('.day-card');
-        
-        dayCards.forEach(card => {
-            card.addEventListener('click', function(event) {
-                event.preventDefault();
-                
-                const targetId = this.dataset.target;
-                const targetElement = document.querySelector(targetId);
+      <!-- DETAILS (reprise et simplification de votre contenu original) -->
+      <div id="details"></div>
+    </section>
 
-                if (!targetElement) return;
-                
-                const isVisible = targetElement.classList.contains('visible');
-                
-                document.querySelectorAll('.detailed-day.visible').forEach(openDay => {
-                    openDay.classList.remove('visible');
-                });
-                document.querySelectorAll('.day-card.active').forEach(activeCard => {
-                    activeCard.classList.remove('active');
-                });
+    <!-- RÉCAP SPEND -->
+    <section class="section">
+      <h2><i class="fa-solid fa-chart-simple"></i> Dépenses quotidiennes estimées (par personne)</h2>
+      <div class="card" id="spendTable"></div>
+    </section>
 
-                if (!isVisible) {
-                    targetElement.classList.add('visible');
-                    this.classList.add('active');
-                    
-                    // Fait défiler la page pour que le haut du panneau de détails soit visible
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
+    <!-- Conseils / Alternatives -->
+    <section class="section">
+      <h2><i class="fa-regular fa-lightbulb"></i> Conseils pro & alternatives</h2>
+      <div class="card">
+        <p class="muted">Astuce majeure : <strong>diviser le séjour</strong> entre Tokyo et Kyoto/Osaka pour économiser 5–6h/jour lors des longues excursions Kansai.</p>
+        <ul>
+          <li class="tag"><i class="fa-solid fa-theater-masks"></i> Kabuki (billet 1 acte — abordable)</li>
+          <li class="tag"><i class="fa-solid fa-robot"></i> Odaiba (Gundam, Miraikan, teamLab)</li>
+          <li class="tag"><i class="fa-solid fa-hot-tub-person"></i> Super sento (Spa LaQua / Thermae-Yu)</li>
+          <li class="tag"><i class="fa-solid fa-mountain"></i> Mont Takao (nature à 1h)</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <button id="backToTopBtn" title="Retour en haut"><i class="fas fa-arrow-up"></i></button>
+
+  <script>
+    // ===== Data (condensée depuis votre HTML original) =====
+    const DAYS = [
+      { id: 'jour1', num: 1, title: 'Arrivée & Shinjuku', place: 'Tokyo', icon: 'fa-plane-arrival', tag: 'tokyo', html: `
+        <div class="card details"><h3><i class="fas fa-plane-arrival"></i> Jour 1 — Arrivée & Shinjuku</h3>
+          <p>Arrivée (NRT/HND), activation JR Pass, pocket Wi‑Fi, installation à Shinjuku. Néons & énergie.</p>
+          <div class="notice success"><strong>Geek :</strong> Yodobashi/Bic Camera Shinjuku pour l'électronique.</div>
+          <div class="row">
+            <div class="half card"><h4>Transport</h4><p><strong>N'EX</strong> Narita → Shinjuku (~90min) — <span class="tag"><i class="fa-solid fa-check"></i> JR Pass</span></p></div>
+            <div class="half card"><h4>Budget du jour (pp)</h4><p>Dîner Omoide Yokocho ~3 500¥ • Boissons ~1 500¥ • Wi‑Fi ~500¥<br><strong>Total :</strong> ~5 500¥ (~35€)</p></div>
+          </div>
+        </div>` },
+      { id: 'jour2', num: 2, title: 'Asakusa & Ueno', place: 'Tokyo', icon: 'fa-gopuram', tag: 'tokyo', html: `
+        <div class="card details"><h3><i class="fas fa-gopuram"></i> Jour 2 — Asakusa & Ueno</h3>
+          <p>Sensō‑ji, parc d'Ueno, marché Ameyoko.</p>
+          <div class="notice"><strong>Geek :</strong> Yamashiroya (figurines) + arcades Taito.</div>
+          <div class="row">
+            <div class="half card"><h4>Transport</h4><p>JR Yamanote/Chuo‑Sobu (majoritairement couverts)</p></div>
+            <div class="half card"><h4>Budget</h4><p>~5 400¥ (~34€)</p></div>
+          </div>
+        </div>` },
+      { id: 'jour3', num: 3, title: 'Harajuku & Shibuya', place: 'Tokyo', icon: 'fa-street-view', tag: 'tokyo', html: `
+        <div class="card details"><h3><i class="fas fa-street-view"></i> Jour 3 — Harajuku & Shibuya</h3>
+          <p>Meiji Jingu, mode à Harajuku, Shibuya Crossing. Option: Shibuya Sky (réservation).</p>
+          <div class="notice"><strong>Geek :</strong> Nintendo Store, Pokémon Center, Mandarake, arcades.</div>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>JR Yamanote — <span class="tag"><i class="fa-solid fa-check"></i> JR Pass</span></p></div>
+          <div class="half card"><h4>Budget</h4><p>~6 800¥ (~43€)</p></div></div>
+        </div>` },
+      { id: 'jour5', num: 5, title: 'Excursion à Nikko', place: 'Excursion', icon: 'fa-torii-gate', tag: 'longue', html: `
+        <div class="card details"><h3><i class="fas fa-torii-gate"></i> Jour 5 — Nikko</h3>
+          <p>UNESCO : Toshogu et nature. ~2h30/aller via Shinkansen + JR Nikko.</p>
+          <div class="notice warning"><strong>Dernier train ~19:30</strong> (à vérifier sur place).</div>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>Couverts JR Pass</p></div><div class="half card"><h4>Budget</h4><p>~4 900¥ (~31€)</p></div></div>
+        </div>` },
+      { id: 'jour7', num: 7, title: 'Hakone', place: 'Excursion', icon: 'fa-mountain', tag: 'courte', html: `
+        <div class="card details"><h3><i class="fas fa-mountain"></i> Jour 7 — Hakone</h3>
+          <p>Onsen, musées, vues Fuji. ~1h30/aller. Hakone Free Pass (depuis Odawara).</p>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>Shinkansen → Odawara (JR), Hakone Tozan (non‑JR)</p></div><div class="half card"><h4>Budget</h4><p>~8 500¥ (~54€)</p></div></div>
+        </div>` },
+      { id: 'jour8', num: 8, title: 'Kyoto (Est)', place: 'Excursion', icon: 'fa-pagelines', tag: 'longue', html: `
+        <div class="card details"><h3><i class="fas fa-pagelines"></i> Jour 8 — Kyoto (Est)</h3>
+          <p><span class="tag"><i class="fa-solid fa-triangle-exclamation"></i> Longue journée</span> ~2h45/aller. Kiyomizu‑dera, Sannenzaka/Ninenzaka, Gion.</p>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>Shinkansen Hikari — couvert JR Pass</p></div><div class="half card"><h4>Budget</h4><p>~5 100¥ (~32€)</p></div></div>
+        </div>` },
+      { id: 'jour9', num: 9, title: 'Odaiba & teamLab', place: 'Tokyo', icon: 'fa-robot', tag: 'tokyo', html: `
+        <div class="card details"><h3><i class="fas fa-robot"></i> Jour 9 — Odaiba & teamLab</h3>
+          <p>Gundam Unicorn, Miraikan, vues sur la baie. teamLab (Azabudai) réservation requise.</p>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>JR Yamanote + Yurikamome (non‑JR)</p></div><div class="half card"><h4>Budget</h4><p>~9 230¥ (~58€)</p></div></div>
+        </div>` },
+      { id: 'jour11', num: 11, title: 'Kamakura', place: 'Excursion', icon: 'fa-wave-square', tag: 'courte', html: `
+        <div class="card details"><h3><i class="fas fa-wave-square"></i> Jour 11 — Kamakura</h3>
+          <p>Daibutsu, Hasedera, ambiance balnéaire. ~1h/aller.</p>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>JR Shōnan‑Shinjuku</p></div><div class="half card"><h4>Budget</h4><p>~5 500¥ (~35€)</p></div></div>
+        </div>` },
+      { id: 'jour12', num: 12, title: 'Kyoto (Sud) — Fushimi Inari', place: 'Excursion', icon: 'fa-torii-gate', tag: 'longue', html: `
+        <div class="card details"><h3><i class="fas fa-torii-gate"></i> Jour 12 — Fushimi Inari</h3>
+          <p>Randonnée à travers les torii vermillon. ~2h50/aller.</p>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>Shinkansen + JR Nara — couverts</p></div><div class="half card"><h4>Budget</h4><p>~3 500¥ (~22€)</p></div></div>
+        </div>` },
+      { id: 'jour14', num: 14, title: 'Nara', place: 'Excursion', icon: 'fa-paw', tag: 'longue', html: `
+        <div class="card details"><h3><i class="fas fa-paw"></i> Jour 14 — Nara</h3>
+          <p>Grands daims et Grand Bouddha. ~3h45/aller (via Kyoto).</p>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>Shinkansen + JR Nara — couverts</p></div><div class="half card"><h4>Budget</h4><p>~4 300¥ (~27€)</p></div></div>
+        </div>` },
+      { id: 'jour15', num: 15, title: "Château d'Himeji", place: 'Excursion', icon: 'fa-fort-awesome', tag: 'longue', html: `
+        <div class="card details"><h3><i class="fas fa-fort-awesome"></i> Jour 15 — Himeji</h3>
+          <p>Le « Héron Blanc ». ~3h30/aller.</p>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>Tokaido‑Sanyo (Hikari) — couvert</p></div><div class="half card"><h4>Budget</h4><p>~3 550¥ (~23€)</p></div></div>
+        </div>` },
+      { id: 'jour18', num: 18, title: 'Hiroshima & Miyajima', place: 'Excursion', icon: 'fa-bomb', tag: 'extreme', html: `
+        <div class="card details"><h3><i class="fas fa-bomb"></i> Jour 18 — [MARATHON] Hiroshima & Miyajima</h3>
+          <p>Journée la plus intense : ~5h/aller. Musée de la Paix + torii flottant.</p>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>Shinkansen + JR Sanyō + Ferry JR — couverts</p></div><div class="half card"><h4>Budget</h4><p>~4 400¥ (~28€)</p></div></div>
+        </div>` },
+      { id: 'jour20', num: 20, title: 'Derniers achats', place: 'Tokyo', icon: 'fa-gift', tag: 'tokyo', html: `
+        <div class="card details"><h3><i class="fas fa-gift"></i> Jour 20 — Shopping souvenirs</h3>
+          <p>Grands magasins (Isetan, Takashimaya), Loft, Tokyu Hands, Don Quijote.</p>
+          <div class="row"><div class="half card"><h4>Transport</h4><p>JR Yamanote</p></div><div class="half card"><h4>Budget</h4><p>~4 000¥ (+ shopping)</p></div></div>
+        </div>` },
+      { id: 'jour21', num: 21, title: 'Départ', place: 'Aéroport', icon: 'fa-plane-departure', tag: 'tokyo', html: `
+        <div class="card details"><h3><i class="fas fa-plane-departure"></i> Jour 21 — Départ</h3>
+          <p>N'EX Shinjuku → Narita. Si JR Pass valide: couvert.</p>
+          <div class="row"><div class="half card"><h4>Budget</h4><p>~1 500¥ (~10€)</p></div></div>
+        </div>` },
+    ];
+
+    const SPEND = [
+      [1, 5500, 35],[2,5400,34],[3,6800,43],[4,7900,50],[5,4900,31],[6,7000,44],[7,8500,54],[8,5100,32],[9,9230,58],[10,6000,38],[11,5500,35],[12,3500,22],[13,7150,45],[14,4300,27],[15,3550,23],[16,5500,35],[17,6400,41],[18,4400,28],[19,7000,44],[20,4000,25],[21,1500,10]
+    ];
+
+    // ===== Build itinerary cards =====
+    const grid = document.getElementById('grid');
+    const detailsRoot = document.getElementById('details');
+    DAYS.sort((a,b)=>a.num-b.num).forEach(d => {
+      const card = document.createElement('article');
+      card.className = 'day-card';
+      card.dataset.target = `#${d.id}`;
+      card.dataset.tags = d.tag;
+      card.innerHTML = `
+        <div class="day-head"><span class="badge">Jour ${d.num}</span><span class="muted"><i class="fa-solid fa-location-dot"></i> ${d.place}</span></div>
+        <div class="day-body"><div class="title">${d.title}</div><div class="kicker"><i class="fa-solid ${d.icon}"></i> Cliquer pour détails</div></div>`;
+      grid.appendChild(card);
+
+      const panel = document.createElement('div');
+      panel.id = d.id;
+      panel.className = 'details';
+      panel.innerHTML = d.html;
+      detailsRoot.appendChild(panel);
+
+      card.addEventListener('click', ()=>{
+        document.querySelectorAll('.details.visible').forEach(el=>el.classList.remove('visible'));
+        panel.classList.add('visible');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     });
 
-    const backToTopBtn = document.getElementById('backToTopBtn');
-    window.onscroll = function() {
-        if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
-            if (backToTopBtn) backToTopBtn.style.display = "block";
-        } else {
-            if (backToTopBtn) backToTopBtn.style.display = "none";
-        }
-    };
-    function scrollToTop() {
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    }
-</script>
+    // ===== Filter chips =====
+    const chips = document.querySelectorAll('.chip');
+    chips.forEach(ch => ch.addEventListener('click', ()=>{
+      chips.forEach(c=>c.classList.remove('active'));
+      ch.classList.add('active');
+      const key = ch.dataset.filter;
+      document.querySelectorAll('.day-card').forEach(dc => {
+        const show = key==='all' || dc.dataset.tags.includes(key);
+        dc.style.display = show ? '' : 'none';
+      });
+    }));
 
+    // ===== Back to top & progress =====
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    const progress = document.getElementById('progressBar');
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      backToTopBtn.style.display = y > 160 ? 'inline-flex' : 'none';
+      const h = document.documentElement;
+      const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
+      progress.style.scale = `${Math.max(scrolled, 0)} 1`;
+    });
+    backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // ===== Theme toggle (persisted) =====
+    const themeToggle = document.getElementById('themeToggle');
+    const applyTheme = (mode) => document.documentElement.setAttribute('data-theme', mode);
+    const savedTheme = localStorage.getItem('theme-mode');
+    if (savedTheme) applyTheme(savedTheme);
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      applyTheme(next); localStorage.setItem('theme-mode', next);
+      themeToggle.innerHTML = next==='light' ? '<i class="fa-regular fa-moon"></i> Thème' : '<i class="fa-regular fa-sun"></i> Thème';
+    });
+
+    // ===== Spend table =====
+    const spendRoot = document.getElementById('spendTable');
+    const table = document.createElement('table');
+    table.innerHTML = `<thead><tr><th>Jour</th><th>¥</th><th>€</th></tr></thead><tbody></tbody><tfoot></tfoot>`;
+    const tbody = table.querySelector('tbody');
+    let totalY = 0, totalE = 0;
+    SPEND.forEach(([d,y,e])=>{ totalY += y; totalE += e; tbody.insertAdjacentHTML('beforeend',`<tr><td>${d}</td><td>${y.toLocaleString('fr-FR')} ¥</td><td>${e}€</td></tr>`); });
+    table.querySelector('tfoot').innerHTML = `<tr><td><strong>Total</strong></td><td>${totalY.toLocaleString('fr-FR')} ¥</td><td>~${totalE}€</td></tr>`;
+    spendRoot.appendChild(table);
+  </script>
 </body>
 </html>
